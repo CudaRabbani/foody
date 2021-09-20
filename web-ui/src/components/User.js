@@ -55,9 +55,13 @@ export default class Users extends React.Component {
   }
 
   componentDidMount() {
-    axios.get(`${process.env.REACT_APP_PUBLIC_API_URL}/users/${this.props.match.params.userId}`).then((response) => {
-      this.setState({user: response.data});
-    })
+    axios.get(`${process.env.REACT_APP_PUBLIC_API_URL}/users/${this.props.match.params.userId}`)
+      .then((response) => {
+        if (!response.data.id) {
+          this.setState({user: null})
+        }
+        else this.setState({user: response.data});
+      });
     
     axios.get(`${process.env.REACT_APP_PUBLIC_API_URL}/users/${this.props.match.params.userId}/foods`).then((response) => {
       this.setState({userFoods: response.data});
@@ -65,12 +69,24 @@ export default class Users extends React.Component {
   }
 
   render() {
+
+    const renderUserInfo = () => {
+      if (this.state.user) {
+        return (
+          <div>
+            <p>ID: {this.state.user.id}</p>
+            <p>Name: {this.state.user.name}</p>
+            <p>Email: {this.state.user.email}</p>
+          </div>
+        );
+      }
+      else return `User ID ${this.props.match.params.userId} not found!`;
+    }
+
     return (
       <div>
         <h1>User information</h1>
-        <p>ID: {this.state.user.id}</p>
-        <p>Name: {this.state.user.name}</p>
-        <p>Email: {this.state.user.email}</p>
+        {renderUserInfo()}
 
         <SearchDropdown
           inputId='food-search'
